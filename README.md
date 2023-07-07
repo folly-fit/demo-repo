@@ -1,9 +1,5 @@
-# Demo
-Some description!
+# Preventing Privilege Escalation
+add permissions Boundries to prevent privilenge Escalation.
 
-# subheader
 
-love what i am doing 
 
-## local Developement 
-1. open index.htlm in your browser 
