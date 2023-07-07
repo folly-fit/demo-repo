@@ -1,75 +1,70 @@
 {
     "Version": "2012-10-17",
     "Statement": [
-        {
-            "Sid": "IAMAccess",
-            "Effect": "Allow",
-            "Action": "iam:*",
-            "Resource": "*"
-        },
-        {
-            "Sid": "DenyPermBoundaryIAMPolicyAlteration",
-            "Effect": "Deny",
-            "Action": [
-                "iam:DeletePolicy",
-                "iam:DeletePolicyVersion",
-                "iam:CreatePolicyVersion",
-                "iam:SetDefaultPolicyVersion"
-            ],
-            "Resource": [
-                "arn:aws:iam::YourAccount_ID:policy/PermissionsBoundary"
+      {
+        "Sid": "AllowFullIAMAccess",
+        "Effect": "Allow",
+        "Action": "iam:*",
+        "Resource": "*"
+      },
+      {
+        "Sid": "AllowUserCreationWithEqualOrLesserPrivileges",
+        "Effect": "Allow",
+        "Action": [
+          "iam:CreateUser",
+          "iam:AttachUserPolicy",
+          "iam:PutUserPolicy"
+        ],
+        "Resource": "*",
+        "Condition": {
+          "StringLike": {
+            "aws:PrincipalArn": [
+              "arn:aws:iam::*:user/${aws:username}"
             ]
-        },
-        {
-            "Sid": "DenyRemovalOfPermBoundaryFromAnyUserOrRole",
-            "Effect": "Deny",
-            "Action": [
-                "iam:DeleteUserPermissionsBoundary",
-                "iam:DeleteRolePermissionsBoundary"
-            ],
-            "Resource": [
-                "arn:aws:iam::YourAccount_ID:user/*",
-                "arn:aws:iam::YourAccount_ID:role/*"
-            ],
-            "Condition": {
-                "StringEquals": {
-                    "iam:PermissionsBoundary": "arn:aws:iam::YourAccount_ID:policy/PermissionsBoundary"
-                }
-            }
-        },
-        {
-            "Sid": "DenyAccessIfRequiredPermBoundaryIsNotBeingApplied",
-            "Effect": "Deny",
-            "Action": [
-                "iam:PutUserPermissionsBoundary",
-                "iam:PutRolePermissionsBoundary"
-            ],
-            "Resource": [
-                "arn:aws:iam::YourAccount_ID:user/*",
-                "arn:aws:iam::YourAccount_ID:role/*"
-            ],
-            "Condition": {
-                "StringNotEquals": {
-                    "iam:PermissionsBoundary": "arn:aws:iam::YourAccount_ID:policy/PermissionsBoundary"
-                }
-            }
-        },
-        {
-            "Sid": "DenyUserAndRoleCreationWithOutPermBoundary",
-            "Effect": "Deny",
-            "Action": [
-                "iam:CreateUser",
-                "iam:CreateRole"
-            ],
-            "Resource": [
-                "arn:aws:iam::YourAccount_ID:user/*",
-                "arn:aws:iam::YourAccount_ID:role/*"
-            ],
-            "Condition": {
-                "StringNotEquals": {
-                    "iam:PermissionsBoundary": "arn:aws:iam::YourAccount_ID:policy/PermissionsBoundary"
-                }
-            }
+          }
         }
+      },
+      {
+        "Sid": "DenyPermissionBoundaryAlteration",
+        "Effect": "Deny",
+        "Action": [
+          "iam:DeletePolicy",
+          "iam:DeletePolicyVersion",
+          "iam:CreatePolicyVersion",
+          "iam:SetDefaultPolicyVersion"
+        ],
+        "Resource": [
+          "arn:aws:iam::ACC-ID:policy/PermissionsBoundary"
+        ]
+      },
+      {
+        "Sid": "DenyRemovalOfPermissionBoundary",
+        "Effect": "Deny",
+        "Action": [
+          "iam:DeleteUserPermissionsBoundary",
+          "iam:DeleteRolePermissionsBoundary"
+        ],
+        "Resource": [
+          "arn:aws:iam::*:user/*",
+          "arn:aws:iam::*:role/*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "iam:PermissionsBoundary": "arn:aws:iam::ACC-ID:policy/PermissionsBoundary"
+          }
+        }
+      },
+      {
+        "Sid": "DenyUserCreationWithoutPermBoundary",
+        "Effect": "Deny",
+        "Action": "iam:CreateUser",
+        "Resource": "*",
+        "Condition": {
+          "Null": {
+            "iam:PermissionsBoundary": "true"
+          }
+        }
+      }
     ]
-}
+  }
+  
